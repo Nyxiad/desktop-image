@@ -2,6 +2,8 @@
 
 set -ouex pipefail
 
+source /etc/os-release
+
 ### Install packages
 
 # Packages can be installed from any enabled yum repo on the image.
@@ -9,16 +11,16 @@ set -ouex pipefail
 # List of rpmfusion packages can be found here:
 # https://mirrors.rpmfusion.org/mirrorlist?path=free/fedora/updates/39/x86_64/repoview/index.html&protocol=https&redirect=1
 
-# this installs a package from fedora repos
-dnf install -y tmux 
+# Third-party repositories
+dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo
+dnf config-manager addrepo --from-repofile=https://download.opensuse.org/repositories/network:/im:/signal/Fedora_$VERSION_ID/network:im:signal.repo
 
-# Use a COPR Example:
-#
-# dnf5 -y copr enable ublue-os/staging
-# dnf5 -y install package
-# Disable COPRs so they don't end up enabled on the final image:
-# dnf5 -y copr disable ublue-os/staging
+# Packages
+dnf install -y chromium tailscale libavcodec-freeworld signal-desktop
+dnf remove -y firefox
 
-#### Example for enabling a System Unit File
+# Flatpaks
+flatpak install -y com.bitwarden.desktop org.gnome.World.PikaBackup io.github.dvlv.boxbuddyrs org.mozilla.firefox
 
-systemctl enable podman.socket
+# System services
+systemctl enable tailscaled
